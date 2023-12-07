@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+
+Resources:
+  MySimpleTable:
+    Type: 'AWS::Serverless::SimpleTable'
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: Number
+
+  MyUpdateFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      FunctionName: UpdateFunction
+      Handler: update.handler
+      Runtime: nodejs14.x
+      CodeUri: ./
+      Timeout: 10
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MySimpleTable
+
+  MyApi:
+    Type: 'AWS::Serverless::Api'
+    Properties:
+      StageName: Prod
+      DefinitionBody:
+        swagger: '2.0'
+        info:
+          title: 'My API'
+        paths:
+          /update:
+            post:
+              x-amazon-apigateway-integration:
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MyUpdateFunction.Arn}/invocations
+                passthroughBehavior: 'when_no_match'
+                httpMethod: POST
+                type: aws_proxy
+              responses: {}
+              security:
+                - sigv4: []
+
+Outputs:
+  ApiURL:
+    Description: 'API Gateway endpoint URL'
+    Value: !Sub 'https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/update'
