@@ -15,7 +15,7 @@ Resources:
       FunctionName: UpdateFunction
       Handler: update.handler
       Runtime: nodejs14.x
-      CodeUri: ./
+      CodeUri: lambdaApp/
       Timeout: 10
       Environment:
         Variables:
