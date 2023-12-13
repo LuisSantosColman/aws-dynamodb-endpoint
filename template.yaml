@@ -9,8 +9,31 @@ Resources:
       PrimaryKey:
         Name: id
         Type: Number
+
+  ## IAM Role for Query Lambda Function
+  DynamoDBReadPolicyRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: DynamoDBReadPolicyRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Policies:
+        PolicyName: DynamoDBReadPolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'dynamodb:GetItem'
+              Resource: !GetAtt MySimpleTable.Arn
   
-  ## IAM Role for Lambda Function
+  ## IAM Role for Write Lambda Function
   MyUpdateFunctionRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -32,8 +55,22 @@ Resources:
                 Action:
                   - 'dynamodb:UpdateItem'
                 Resource: !GetAtt MySimpleTable.Arn
+  
+  ## Lambda Query Function
+  MyQueryFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      FunctionName: MyQueryFunction
+      Handler: app.queryHandler
+      Runtime: nodejs14.x
+      CodeUri: queryApp/
+      Timeout: 10
+      Role: !GetAtt DynamoDBReadPolicy.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MySimpleTable
 
-  ## Lambda Function
+  ## Lambda Write Function
   MyUpdateFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
@@ -61,6 +98,16 @@ Resources:
             post:
               x-amazon-apigateway-integration:
                 uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MyUpdateFunction.Arn}/invocations
+                passthroughBehavior: 'when_no_match'
+                httpMethod: POST
+                type: aws_proxy
+              responses: {}
+              security:
+                - sigv4: []
+          /query:
+            head:
+              x-amazon-apigateway-integration:
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MyQueryFunction.Arn}/invocations
                 passthroughBehavior: 'when_no_match'
                 httpMethod: POST
                 type: aws_proxy
