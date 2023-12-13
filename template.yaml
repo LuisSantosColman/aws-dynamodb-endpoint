@@ -7,7 +7,7 @@ Resources:
     Type: 'AWS::Serverless::SimpleTable'
     Properties:
       PrimaryKey:
-        Name: ID
+        Name: id
         Type: String
   
   ## IAM Role for Lambda Function
