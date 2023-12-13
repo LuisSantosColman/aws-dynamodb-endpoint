@@ -115,12 +115,21 @@ Resources:
               security:
                 - sigv4: []
 
-  ## Lambda Function
-  MyApiInvokePermission:
+  ## Write Lambda Function Invoke Permission
+  MyApiInvokePermissionWrite:
     Type: 'AWS::Lambda::Permission'
     Properties:
       Action: 'lambda:InvokeFunction'
       FunctionName: !GetAtt MyUpdateFunction.Arn
+      Principal: 'apigateway.amazonaws.com'
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${MyApi}/*/*/*'
+  
+  ## Read/Query Lambda Function Invoke Permission
+  MyApiInvokePermissionRead:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !GetAtt MyQueryFunction.Arn
       Principal: 'apigateway.amazonaws.com'
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${MyApi}/*/*/*'
 
@@ -130,4 +139,4 @@ Outputs:
     Value: !Sub 'https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/update'
   QueryApiURL:
     Description: 'API Gateway endpoint URL to read/query the database'
-    Value: !Sub 'https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/query?id={MiroUserId}'
+    Value: !Sub 'https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/query?id=MiroUserId'
