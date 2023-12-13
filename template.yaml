@@ -8,7 +8,7 @@ Resources:
     Properties:
       PrimaryKey:
         Name: id
-        Type: String
+        Type: Number
   
   ## IAM Role for Lambda Function
   MyUpdateFunctionRole:
