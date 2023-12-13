@@ -105,7 +105,7 @@ Resources:
               security:
                 - sigv4: []
           /query:
-            head:
+            get:
               x-amazon-apigateway-integration:
                 uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MyQueryFunction.Arn}/invocations
                 passthroughBehavior: 'when_no_match'
