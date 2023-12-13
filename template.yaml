@@ -8,7 +8,7 @@ Resources:
     Properties:
       PrimaryKey:
         Name: id
-        Type: Number
+        Type: String
 
   ## IAM Role for Query Lambda Function
   DynamoDBReadPolicyRole:
