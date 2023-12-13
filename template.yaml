@@ -27,7 +27,7 @@ Resources:
           Statement:
             - Effect: Allow
               Action: dynamodb:PutItem
-              Resource: !GetAtt MySimpleTable.Arn
+              Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${MySimpleTable}'
 
   ## API Gateway
   MyApi:
