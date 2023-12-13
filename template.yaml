@@ -130,4 +130,4 @@ Outputs:
     Value: !Sub 'https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/update'
   QueryApiURL:
     Description: 'API Gateway endpoint URL to read/query the database'
-    Value: !Sub 'https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/query?id={MiroIserId}'
+    Value: !Sub 'https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/query?id={MiroUserId}'
