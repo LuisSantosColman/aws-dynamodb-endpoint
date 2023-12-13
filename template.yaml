@@ -1,46 +1,74 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: 'AWS::Serverless-2016-10-31'
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: Miro Banner Accepters
 
 Resources:
-  MySimpleTable:
+
+  # DynamoDB Table
+  MiroBannerAccepters:
     Type: 'AWS::Serverless::SimpleTable'
     Properties:
       PrimaryKey:
         Name: id
         Type: Number
 
-  MyUpdateFunction:
-    Type: 'AWS::Serverless::Function'
+  # HTTP API
+  MiroBannerAPI:
+    Type: AWS::Serverless::HttpApi
     Properties:
-      FunctionName: UpdateFunction
+      # CORS configuration - this is open for development only and should be restricted in prod.
+      # See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-httpapi-httpapicorsconfiguration.html   
+      CorsConfiguration:
+        AllowMethods:
+          - GET
+          - POST
+          - DELETE
+          - OPTIONS
+        AllowHeaders:
+          - "*"   
+        AllowOrigins: 
+          - "*"      
+
+  ## Lambda functions
+  MiroBannerFunction:
+  Type: 'AWS::Serverless::Function'
+  Properties:
+    CodeUri: lambdaApp/
+    Handler: app.handler
+    Runtime: nodejs16.x
+    Timeout: 10
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref MiroBannerAccepters
+    Events:
+        ApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /update
+            Method: post
+            RestApiId:
+              Ref: !Ref MiroBannerAPI
+
+  MiroBannerAcceptersRequestFunction:
+    # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: getSignedURL/
       Handler: app.handler
-      Runtime: nodejs14.x
-      CodeUri: lambdaApp/
-      Timeout: 10
+      Runtime: nodejs16.x
+      Timeout: 3
+      MemorySize: 128
       Environment:
         Variables:
-          TABLE_NAME: !Ref MySimpleTable
+          MiroBannerAccepters: !Ref S3MiroBannerAccepters
+      Policies:
+        - Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action: dynamodb:PutItem
+              Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${MiroBannerAPI}"
 
-  MyApi:
-    Type: 'AWS::Serverless::Api'
-    Properties:
-      StageName: Prod
-      DefinitionBody:
-        swagger: '2.0'
-        info:
-          title: 'My API'
-        paths:
-          /update:
-            post:
-              x-amazon-apigateway-integration:
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MyUpdateFunction.Arn}/invocations
-                passthroughBehavior: 'when_no_match'
-                httpMethod: POST
-                type: aws_proxy
-              responses: {}
-              security:
-                - sigv4: []
-
+## Take a note of the outputs for deploying the workflow templates in this sample application
 Outputs:
   ApiURL:
     Description: 'API Gateway endpoint URL'
