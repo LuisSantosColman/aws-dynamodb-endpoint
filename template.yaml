@@ -125,6 +125,9 @@ Resources:
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${MyApi}/*/*/*'
 
 Outputs:
-  ApiURL:
-    Description: 'API Gateway endpoint URL'
+  WriteApiURL:
+    Description: 'API Gateway endpoint URL to write on the database'
     Value: !Sub 'https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/update'
+  QueryApiURL:
+    Description: 'API Gateway endpoint URL to read/query the database'
+    Value: !Sub 'https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/query?id={MiroIserId}'
