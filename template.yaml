@@ -24,14 +24,14 @@ Resources:
                 - lambda.amazonaws.com
             Action: 'sts:AssumeRole'
       Policies:
-        PolicyName: DynamoDBReadPolicy
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-            - Effect: Allow
-              Action:
-                - 'dynamodb:GetItem'
-              Resource: !GetAtt MySimpleTable.Arn
+        - PolicyName: DynamoDBReadPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'dynamodb:GetItem'
+                Resource: !GetAtt MySimpleTable.Arn
   
   ## IAM Role for Write Lambda Function
   MyUpdateFunctionRole:
