@@ -9,6 +9,29 @@ Resources:
       PrimaryKey:
         Name: id
         Type: Number
+  
+  ## IAM Role for Lambda Function
+  MyUpdateFunctionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: MyUpdateFunctionRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: MyDynamoDBAccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'dynamodb:UpdateItem'
+                Resource: !GetAtt MySimpleTable.Arn
 
   ## Lambda Function
   MyUpdateFunction:
@@ -19,15 +42,11 @@ Resources:
       Runtime: nodejs14.x
       CodeUri: lambdaApp/
       Timeout: 10
+      Policies:
+        - !Ref MyUpdateFunctionRole
       Environment:
         Variables:
           TABLE_NAME: !Ref MySimpleTable
-      Policies:
-        - Version: 2012-10-17
-          Statement:
-            - Effect: Allow
-              Action: dynamodb:PutItem
-              Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${MySimpleTable}'
 
   ## API Gateway
   MyApi:
