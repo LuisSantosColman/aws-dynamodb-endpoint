@@ -61,7 +61,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       FunctionName: MyQueryFunction
-      Handler: app.queryHandler
+      Handler: app.handler
       Runtime: nodejs14.x
       CodeUri: queryApp/
       Timeout: 10
