@@ -8,7 +8,7 @@ exports.handler = async (event) => {
     const apiPayload = JSON.parse(event.body);
     const onlyLettersAndNumbers = function(str) {
     	return /^[A-Za-z0-9]*$/.test(str);
-    }
+    };
     
     if (apiPayload.hasOwnProperty('id')) {
         const userId = apiPayload.id.toString();
@@ -18,9 +18,9 @@ exports.handler = async (event) => {
             return {
                 statusCode: 500,
                 headers: {
-                    "Access-Control-Allow-Headers": "Content-Type",
+                    "Access-Control-Allow-Headers": "Content-Type,Accept",
                     "Access-Control-Allow-Origin": "*", // Allow from anywhere 
-                    "Access-Control-Allow-Methods": "POST" // Allow only POST request 
+                    "Access-Control-Allow-Methods": "OPTIONS,POST" // Allow only POST request 
                 },
                 body: 'Internal Server Error'
             };
@@ -42,9 +42,9 @@ exports.handler = async (event) => {
                 statusCode: 200,
                 //body: JSON.stringify(result.Attributes)
                 headers: {
-                    "Access-Control-Allow-Headers": "Content-Type",
+                    "Access-Control-Allow-Headers": "Content-Type,Accept",
                     "Access-Control-Allow-Origin": "*", // Allow from anywhere 
-                    "Access-Control-Allow-Methods": "POST" // Allow only POST request 
+                    "Access-Control-Allow-Methods": "OPTIONS,POST" // Allow only POST request 
                 },
                 body: 'OK'
             };
@@ -55,9 +55,9 @@ exports.handler = async (event) => {
             return {
                 statusCode: 500,
                 headers: {
-                    "Access-Control-Allow-Headers": "Content-Type",
+                    "Access-Control-Allow-Headers": "Content-Type,Accept",
                     "Access-Control-Allow-Origin": "*", // Allow from anywhere 
-                    "Access-Control-Allow-Methods": "POST" // Allow only POST request 
+                    "Access-Control-Allow-Methods": "OPTIONS,POST" // Allow only POST request 
                 },
                 body: JSON.stringify({ error: 'Internal Server Error' })
             };
@@ -68,9 +68,9 @@ exports.handler = async (event) => {
         return {
             statusCode: 500,
             headers: {
-                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Headers": "Content-Type,Accept",
                 "Access-Control-Allow-Origin": "*", // Allow from anywhere 
-                "Access-Control-Allow-Methods": "POST" // Allow only POST request 
+                "Access-Control-Allow-Methods": "OPTIONS,POST" // Allow only POST request 
             },
             body: 'Internal Server Error'
         };
