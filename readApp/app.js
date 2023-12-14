@@ -14,6 +14,11 @@ exports.handler = async (event) => {
         /* Returning a 500 error if the URL parameter "u" is not passed in the GET request */
         return {
             statusCode: 500,
+            headers: {
+                "Access-Control-Allow-Headers" : "Content-Type",
+                "Access-Control-Allow-Origin": "*", // Allow from anywhere 
+                "Access-Control-Allow-Methods": "GET" // Allow only GET request 
+            },
             body: 'Internal Server Error'
         };
     }
@@ -28,6 +33,11 @@ exports.handler = async (event) => {
             /* Returning a 500 error if the value of the URL parameter "u" passed in the GET request contains characters other than letters and numbers */
             return {
                 statusCode: 500,
+                headers: {
+                    "Access-Control-Allow-Headers" : "Content-Type",
+                    "Access-Control-Allow-Origin": "*", // Allow from anywhere 
+                    "Access-Control-Allow-Methods": "GET" // Allow only GET request 
+                },
                 body: 'Internal Server Error'
             };
         }
@@ -35,6 +45,11 @@ exports.handler = async (event) => {
     else {
         return {
             statusCode: 500,
+            headers: {
+                "Access-Control-Allow-Headers" : "Content-Type",
+                "Access-Control-Allow-Origin": "*", // Allow from anywhere 
+                "Access-Control-Allow-Methods": "GET" // Allow only GET request 
+            },
             body: 'Internal Server Error'
         };
     }
@@ -57,6 +72,11 @@ exports.handler = async (event) => {
             return {
                 statusCode: 200,
                 //body: JSON.stringify(data.Item)
+                headers: {
+                    "Access-Control-Allow-Headers" : "Content-Type",
+                    "Access-Control-Allow-Origin": "*", // Allow from anywhere 
+                    "Access-Control-Allow-Methods": "GET" // Allow only GET request 
+                },
                 body: 'OK'
             };
         }
@@ -65,6 +85,11 @@ exports.handler = async (event) => {
             /* Returning a 404 error if the value of the URL parameter "u" does not match any entry in the DynamoDB table */
             return {
                 statusCode: 404,
+                headers: {
+                    "Access-Control-Allow-Headers" : "Content-Type",
+                    "Access-Control-Allow-Origin": "*", // Allow from anywhere 
+                    "Access-Control-Allow-Methods": "GET" // Allow only GET request 
+                },
                 body: 'Not Found'
             };
         }
@@ -75,6 +100,11 @@ exports.handler = async (event) => {
         /* Returning a 500 error for any other error not catched above */
         return {
             statusCode: 500,
+            headers: {
+                "Access-Control-Allow-Headers" : "Content-Type",
+                "Access-Control-Allow-Origin": "*", // Allow from anywhere 
+                "Access-Control-Allow-Methods": "GET" // Allow only GET request 
+            },
             body: 'Internal Server Error'
         };
     }
