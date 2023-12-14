@@ -115,6 +115,7 @@ Resources:
               responses: {}
               security:
                 - sigv4: []
+      AddDefaultAuthorizerToCorsPreflight: false
 
   ## "Read" Lambda Function Invoke Permission
   MiroBannerTermsApiInvokePermissionRead:
