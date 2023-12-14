@@ -1,4 +1,4 @@
-/* Expected payload for the POST request: { "id": "Miro-User-ID" } */
+/* Example of expected payload for the POST request: { "id": "Miro-User-ID" } */
 
 const AWS = require('aws-sdk');
 
