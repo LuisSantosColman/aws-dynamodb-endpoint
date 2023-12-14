@@ -96,53 +96,35 @@ Resources:
           title: 'MiroBannerTermsAPI'
         paths:
           /w:
-            post:
-              x-amazon-apigateway-integration:
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MiroBannerTermsWriteFunction.Arn}/invocations
-                passthroughBehavior: 'when_no_match'
-                httpMethod: POST
-                type: aws_proxy
-              responses: {}
-              security:
-                - sigv4: []
             options:
               responses:
                 '200':
                   description: '200 response'
-              x-amazon-apigateway-integration:
-                type: mock
-                requestTemplates:
-                  application/json: "{\"statusCode\": 200}"
-                responses:
-                  '200':
-                    statusCode: '200'
-                    responseParameters:
-                      method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
-                      method.response.header.Access-Control-Allow-Origin: "'*'"
+            x-amazon-apigateway-integration:
+              type: mock
+              requestTemplates:
+                application/json: "{\"statusCode\": 200}"
+              responses:
+                '200':
+                  statusCode: '200'
+                  responseParameters:
+                    method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST'"
+                    method.response.header.Access-Control-Allow-Origin: "'*'"
           /q:
-            get:
-              x-amazon-apigateway-integration:
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MiroBannerTermsReadFunction.Arn}/invocations
-                passthroughBehavior: 'when_no_match'
-                httpMethod: POST
-                type: aws_proxy
-              responses: {}
-              security:
-                - sigv4: []
             options:
               responses:
                 '200':
                   description: '200 response'
-              x-amazon-apigateway-integration:
-                type: mock
-                requestTemplates:
-                  application/json: "{\"statusCode\": 200}"
-                responses:
-                  '200':
-                    statusCode: '200'
-                    responseParameters:
-                      method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
-                      method.response.header.Access-Control-Allow-Origin: "'*'"
+            x-amazon-apigateway-integration:
+              type: mock
+              requestTemplates:
+                application/json: "{\"statusCode\": 200}"
+              responses:
+                '200':
+                  statusCode: '200'
+                  responseParameters:
+                    method.response.header.Access-Control-Allow-Methods: "'OPTIONS,GET'"
+                    method.response.header.Access-Control-Allow-Origin: "'*'"
   
   ## "Read" Lambda Function Invoke Permission
   MiroBannerTermsApiInvokePermissionRead:
