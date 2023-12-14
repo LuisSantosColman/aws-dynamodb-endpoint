@@ -135,9 +135,9 @@ Resources:
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${MiroBannerTermsAPI}/*/*/*'
 
 Outputs:
-  ReadApiURL:
-    Description: 'API Gateway endpoint URL to read/query the MiroBannerTermsAccepters database'
-    Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/q?u=MiroUserId'
   WriteApiURL:
     Description: 'API Gateway endpoint URL to write on the MiroBannerTermsAccepters database'
     Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/w'
+  ReadApiURL:
+    Description: 'API Gateway endpoint URL to read/query the MiroBannerTermsAccepters database'
+    Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/q?u=MiroUserId'
