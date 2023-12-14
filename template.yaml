@@ -116,15 +116,6 @@ Resources:
               security:
                 - sigv4: []
 
-  ## CORS Settings for API Gateway
-  Globals:
-    Api:
-      Cors:
-        AllowMethods: "'GET,POST,OPTIONS'"
-        AllowHeaders: "'Content-Type'"
-        AllowOrigin: "'*'"
-        # AllowCredentials: true  Uncomment only if you choose a specific origin instead of the * wildcard.
-
   ## "Read" Lambda Function Invoke Permission
   MiroBannerTermsApiInvokePermissionRead:
     Type: 'AWS::Lambda::Permission'
