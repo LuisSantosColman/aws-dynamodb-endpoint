@@ -4,6 +4,15 @@ exports.handler = async (event) => {
     
     const dynamoDB = new AWS.DynamoDB.DocumentClient();
     const tableName = process.env.TABLE_NAME;
+    if (event.queryStringParameters.hasOwnProperty('u') && event.queryStringParameters.u !== '') {
+        const userId = event.queryStringParameters.u.toString();
+    }
+    else {
+        return {
+            statusCode: 500,
+            body: 'Internal Server Error'
+        };
+    }
     const userId = event.queryStringParameters.u.toString();
 
     const params = {
