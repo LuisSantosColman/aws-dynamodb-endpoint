@@ -118,7 +118,7 @@ Resources:
 
   ## CORS Settings for API Gateway
   Globals:
-    Api:
+    MiroBannerTermsAPI:
       Cors:
         AllowMethods: "'GET,POST,OPTIONS'"
         AllowHeaders: "'Content-Type'"
