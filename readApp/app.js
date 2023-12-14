@@ -4,7 +4,7 @@ exports.handler = async (event) => {
     
     const dynamoDB = new AWS.DynamoDB.DocumentClient();
     const tableName = process.env.TABLE_NAME;
-    var userId = event.queryStringParameters.u.toString();
+    const userId = event.queryStringParameters.u.toString();
 
     const params = {
         TableName: tableName,
