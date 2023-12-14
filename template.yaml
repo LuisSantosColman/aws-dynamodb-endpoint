@@ -2,19 +2,20 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 
 Resources:
-  ## DynamoDB Table
-  MySimpleTable:
+  ## DynamoDB Table where users who have accepted the Miro Banner will be captured.
+  ## The "id" will be the numeric Miro User ID, stored as string. You may capture a hashed version of the Miro ID in this table (if desired)
+  MiroBannerTermsAcceptersTable:
     Type: 'AWS::Serverless::SimpleTable'
     Properties:
       PrimaryKey:
         Name: id
         Type: String
 
-  ## IAM Role for Query Lambda Function
-  DynamoDBReadPolicyRole:
+  ## IAM Role for the "Read" Lambda Function to query/read the database
+  MiroBannerTermsReadFunctionRole:
     Type: 'AWS::IAM::Role'
     Properties:
-      RoleName: DynamoDBReadPolicyRole
+      RoleName: MiroBannerTermsReadFunctionRole
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -24,20 +25,20 @@ Resources:
                 - lambda.amazonaws.com
             Action: 'sts:AssumeRole'
       Policies:
-        - PolicyName: DynamoDBReadPolicy
+        - PolicyName: MiroBannerTermsDynamoDBReadPolicy
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
                   - 'dynamodb:GetItem'
-                Resource: !GetAtt MySimpleTable.Arn
+                Resource: !GetAtt MiroBannerTermsAcceptersTable.Arn
   
-  ## IAM Role for Write Lambda Function
-  MyUpdateFunctionRole:
+  ## IAM Role for the "Write" Lambda Function to write on the database
+  MiroBannerTermsWriteFunctionRole:
     Type: 'AWS::IAM::Role'
     Properties:
-      RoleName: MyUpdateFunctionRole
+      RoleName: MiroBannerTermsWriteFunctionRole
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -47,96 +48,96 @@ Resources:
                 - lambda.amazonaws.com
             Action: 'sts:AssumeRole'
       Policies:
-        - PolicyName: MyDynamoDBAccessPolicy
+        - PolicyName: MiroBannerTermsDynamoDBWritePolicy
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
                   - 'dynamodb:UpdateItem'
-                Resource: !GetAtt MySimpleTable.Arn
+                Resource: !GetAtt MiroBannerTermsAcceptersTable.Arn
   
-  ## Lambda Query Function
-  MyQueryFunction:
+  ## Lambda "Read" Function
+  MiroBannerTermsReadFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
-      FunctionName: MyQueryFunction
+      FunctionName: MiroBannerTermsReadFunction
       Handler: app.handler
       Runtime: nodejs14.x
-      CodeUri: queryApp/
+      CodeUri: readApp/
       Timeout: 10
-      Role: !GetAtt DynamoDBReadPolicyRole.Arn
+      Role: !GetAtt MiroBannerTermsReadFunctionRole.Arn
       Environment:
         Variables:
-          TABLE_NAME: !Ref MySimpleTable
+          TABLE_NAME: !Ref MiroBannerTermsAcceptersTable
 
-  ## Lambda Write Function
-  MyUpdateFunction:
+  ## Lambda "Write" Function
+  MiroBannerTermsWriteFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
-      FunctionName: MyUpdateFunction
+      FunctionName: MiroBannerTermsWriteFunction
       Handler: app.handler
       Runtime: nodejs14.x
-      CodeUri: lambdaApp/
+      CodeUri: writeApp/
       Timeout: 10
-      Role: !GetAtt MyUpdateFunctionRole.Arn
+      Role: !GetAtt MiroBannerTermsWriteFunctionRole.Arn
       Environment:
         Variables:
-          TABLE_NAME: !Ref MySimpleTable
+          TABLE_NAME: !Ref MiroBannerTermsAcceptersTable
 
   ## API Gateway
-  MyApi:
+  MiroBannerTermsAPI:
     Type: 'AWS::Serverless::Api'
     Properties:
       StageName: Prod
       DefinitionBody:
         swagger: '2.0'
         info:
-          title: 'MyAPI'
+          title: 'MiroBannerTermsAPI'
         paths:
-          /update:
+          /w:
             post:
               x-amazon-apigateway-integration:
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MyUpdateFunction.Arn}/invocations
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MiroBannerTermsWriteFunction.Arn}/invocations
                 passthroughBehavior: 'when_no_match'
                 httpMethod: POST
                 type: aws_proxy
               responses: {}
               security:
                 - sigv4: []
-          /query:
+          /q:
             get:
               x-amazon-apigateway-integration:
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MyQueryFunction.Arn}/invocations
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MiroBannerTermsReadFunction.Arn}/invocations
                 passthroughBehavior: 'when_no_match'
                 httpMethod: POST
                 type: aws_proxy
               responses: {}
               security:
                 - sigv4: []
-
-  ## Write Lambda Function Invoke Permission
-  MyApiInvokePermissionWrite:
-    Type: 'AWS::Lambda::Permission'
-    Properties:
-      Action: 'lambda:InvokeFunction'
-      FunctionName: !GetAtt MyUpdateFunction.Arn
-      Principal: 'apigateway.amazonaws.com'
-      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${MyApi}/*/*/*'
   
-  ## Read/Query Lambda Function Invoke Permission
-  MyApiInvokePermissionRead:
+  ## "Read" Lambda Function Invoke Permission
+  MiroBannerTermsApiInvokePermissionRead:
     Type: 'AWS::Lambda::Permission'
     Properties:
       Action: 'lambda:InvokeFunction'
-      FunctionName: !GetAtt MyQueryFunction.Arn
+      FunctionName: !GetAtt MiroBannerTermsReadFunction.Arn
       Principal: 'apigateway.amazonaws.com'
-      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${MyApi}/*/*/*'
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${MiroBannerTermsAPI}/*/*/*'
+  
+  ## "Write" Lambda Function Invoke Permission
+  MiroBannerTermsApiInvokePermissionWrite:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !GetAtt MiroBannerTermsWriteFunction.Arn
+      Principal: 'apigateway.amazonaws.com'
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${MiroBannerTermsAPI}/*/*/*'
 
 Outputs:
+  ReadApiURL:
+    Description: 'API Gateway endpoint URL to read/query the MiroBannerTermsAccepters database'
+    Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/q?u=MiroUserId'
   WriteApiURL:
-    Description: 'API Gateway endpoint URL to write on the database'
-    Value: !Sub 'https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/update'
-  QueryApiURL:
-    Description: 'API Gateway endpoint URL to read/query the database'
-    Value: !Sub 'https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/query?id=MiroUserId'
+    Description: 'API Gateway endpoint URL to write on the MiroBannerTermsAccepters database'
+    Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/w'
