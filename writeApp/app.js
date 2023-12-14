@@ -1,3 +1,5 @@
+/* Expected payload for the POST request: { "id": "Miro-User-ID" } */
+
 const AWS = require('aws-sdk');
 
 exports.handler = async (event) => {
