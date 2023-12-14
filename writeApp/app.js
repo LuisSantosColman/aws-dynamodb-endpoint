@@ -46,6 +46,8 @@ exports.handler = async (event) => {
         };
     } catch (error) {
         console.error('Error updating item:', error);
+        
+        /* Returning a 500 error for any other error not catched above */
         return {
             statusCode: 500,
             body: JSON.stringify({ error: 'Internal Server Error' })
