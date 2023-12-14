@@ -95,80 +95,26 @@ Resources:
         info:
           title: 'MiroBannerTermsAPI'
         paths:
-          /q:
-            get:
-              responses:
-                '200':
-                  description: '200 response'
-                  headers:
-                    Access-Control-Allow-Methods:
-                      type: string
-                      example: "'GET,OPTIONS'"
-                    Access-Control-Allow-Origin:
-                      type: string
-                      example: "'*'"
-              x-amazon-apigateway-integration:
-                type: aws_proxy
-                httpMethod: POST
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MiroBannerTermsReadFunction.Arn}/invocations
-            options:
-              responses:
-                '200':
-                  description: '200 response'
-                  headers:
-                    Access-Control-Allow-Methods:
-                      type: string
-                      example: "'OPTIONS,GET'"
-                    Access-Control-Allow-Origin:
-                      type: string
-                      example: "'*'"
-              x-amazon-apigateway-integration:
-                type: mock
-                requestTemplates:
-                  application/json: "{\"statusCode\": 200}"
-                responses:
-                  '200':
-                    statusCode: '200'
-                    responseParameters:
-                      method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
-                      method.response.header.Access-Control-Allow-Origin: "'*'"
           /w:
             post:
-              responses:
-                '200':
-                  description: '200 response'
-                  headers:
-                    Access-Control-Allow-Methods:
-                      type: string
-                      example: "'OPTIONS,POST'"
-                    Access-Control-Allow-Origin:
-                      type: string
-                      example: "'*'"
               x-amazon-apigateway-integration:
-                type: aws_proxy
-                httpMethod: POST
                 uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MiroBannerTermsWriteFunction.Arn}/invocations
-            options:
-              responses:
-                '200':
-                  description: '200 response'
-                  headers:
-                    Access-Control-Allow-Methods:
-                      type: string
-                      example: "'OPTIONS,POST'"
-                    Access-Control-Allow-Origin:
-                      type: string
-                      example: "'*'"
+                passthroughBehavior: 'when_no_match'
+                httpMethod: POST
+                type: aws_proxy
+              responses: {}
+              security:
+                - sigv4: []
+          /q:
+            get:
               x-amazon-apigateway-integration:
-                type: mock
-                requestTemplates:
-                  application/json: "{\"statusCode\": 200}"
-                responses:
-                  '200':
-                    statusCode: '200'
-                    responseParameters:
-                      method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
-                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MiroBannerTermsReadFunction.Arn}/invocations
+                passthroughBehavior: 'when_no_match'
+                httpMethod: POST
+                type: aws_proxy
+              responses: {}
+              security:
+                - sigv4: []
   
   ## "Read" Lambda Function Invoke Permission
   MiroBannerTermsApiInvokePermissionRead:
@@ -189,9 +135,9 @@ Resources:
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${MiroBannerTermsAPI}/*/*/*'
 
 Outputs:
-  WriteApiURL:
-    Description: 'API Gateway endpoint URL to write on the MiroBannerTermsAccepters database'
-    Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/w'
   ReadApiURL:
     Description: 'API Gateway endpoint URL to read/query the MiroBannerTermsAccepters database'
     Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/q?u=MiroUserId'
+  WriteApiURL:
+    Description: 'API Gateway endpoint URL to write on the MiroBannerTermsAccepters database'
+    Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/w'
