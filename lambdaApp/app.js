@@ -22,13 +22,13 @@ exports.handler = async (event) => {
         return {
             statusCode: 200,
             //body: JSON.stringify(result.Attributes)
-            body: 'success'
+            body: 'OK'
         };
     } catch (error) {
         console.error('Error updating item:', error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: error })
+            body: JSON.stringify({ error: 'Internal Server Error' })
         };
     }
 };
