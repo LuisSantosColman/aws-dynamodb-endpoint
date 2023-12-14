@@ -13,6 +13,7 @@ exports.handler = async (event) => {
     if (apiPayload.hasOwnProperty('id')) {
         const userId = apiPayload.id.toString();
         const isValidUserId = onlyLettersAndNumbers(userId);
+        
         if (!isValidUserId || !userId) {
             /* Returning a 500 error if the value of the "id" parameter posted contains characters other than a string with only letters and numbers */
             return {
