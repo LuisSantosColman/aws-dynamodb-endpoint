@@ -3,7 +3,7 @@ Transform: 'AWS::Serverless-2016-10-31'
 
 Resources:
   ## DynamoDB Table where users who have accepted the Miro Banner will be captured.
-  ## The "id" will be the numeric Miro User ID, stored as a string. You may capture a hashed version of the Miro ID in this table (if desired)
+  ## The "id" will be the numeric Miro User ID, stored as string. You may capture a hashed version of the Miro ID in this table (if desired)
   MiroBannerTermsAcceptersTable:
     Type: 'AWS::Serverless::SimpleTable'
     Properties:
@@ -105,6 +105,20 @@ Resources:
               responses: {}
               security:
                 - sigv4: []
+            options:
+              responses:
+                '200':
+                  description: '200 response'
+              x-amazon-apigateway-integration:
+                type: mock
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+                responses:
+                  '200':
+                    statusCode: '200'
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
           /q:
             get:
               x-amazon-apigateway-integration:
@@ -115,6 +129,20 @@ Resources:
               responses: {}
               security:
                 - sigv4: []
+            options:
+              responses:
+                '200':
+                  description: '200 response'
+              x-amazon-apigateway-integration:
+                type: mock
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+                responses:
+                  '200':
+                    statusCode: '200'
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
   
   ## "Read" Lambda Function Invoke Permission
   MiroBannerTermsApiInvokePermissionRead:
@@ -135,9 +163,9 @@ Resources:
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${MiroBannerTermsAPI}/*/*/*'
 
 Outputs:
-  WriteApiURL:
-    Description: 'API Gateway endpoint URL to write on the MiroBannerTermsAccepters database'
-    Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/w'
   ReadApiURL:
     Description: 'API Gateway endpoint URL to read/query the MiroBannerTermsAccepters database'
     Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/q?u=MiroUserId'
+  WriteApiURL:
+    Description: 'API Gateway endpoint URL to write on the MiroBannerTermsAccepters database'
+    Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/w'
