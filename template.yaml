@@ -105,6 +105,17 @@ Resources:
               responses: {}
               security:
                 - sigv4: []
+            options:
+              responses:
+                '200':
+                  description: 'CORS preflight response'
+                  headers:
+                    Access-Control-Allow-Methods:
+                      type: string
+                      example: "'POST,OPTIONS'"
+                    Access-Control-Allow-Origin:
+                      type: string
+                      example: "'*'"
           /q:
             get:
               x-amazon-apigateway-integration:
