@@ -3,7 +3,7 @@ Transform: 'AWS::Serverless-2016-10-31'
 
 Resources:
   ## Database where users who have accepted the Miro Banner will be captured.
-  ## The "id" will be the numeric Miro User ID, stored as a string. You may capture a hashed version of the Miro ID in this table (if desired)
+  ## The "id" will be the numeric Miro User ID, stored as a string. You may use a hashed version of the Miro ID in this table instead (if desired)
   MiroBannerTermsAcceptersTable:
     Type: 'AWS::Serverless::SimpleTable'
     Properties:
