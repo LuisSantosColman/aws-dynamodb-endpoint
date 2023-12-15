@@ -2,24 +2,27 @@ const AWS = require('aws-sdk');
 
 exports.handler = async (event) => {
     
-    const onlyLettersAndNumbers = function(str) {
-    	return /^[A-Za-z0-9]*$/.test(str);
-    }
-    
     const dynamoDB = new AWS.DynamoDB.DocumentClient();
     const tableName = process.env.TABLE_NAME;
     
+    const onlyLettersAndNumbers = function(str) {
+    	return /^[A-Za-z0-9]*$/.test(str);
+    };
+    
+    const responseHeaders = {
+        "Access-Control-Allow-Headers" : "Accept",
+        "Access-Control-Allow-Origin": "*", // Allow from anywhere 
+        "Access-Control-Allow-Methods": "GET", // Allow only GET request
+        "Content-Type": "text/plain"
+    };
+    
     if (event && event.hasOwnProperty('queryStringParameters') && !event.queryStringParameters) {
         
-        /* Returning a 500 error if the URL parameter "u" is not passed in the GET request */
+        /* Returning a 400 error if the URL parameter "u" is not passed in the GET request */
         return {
-            statusCode: 500,
-            headers: {
-                "Access-Control-Allow-Headers" : "Content-Type",
-                "Access-Control-Allow-Origin": "*", // Allow from anywhere 
-                "Access-Control-Allow-Methods": "GET" // Allow only GET request 
-            },
-            body: 'Internal Server Error'
+            statusCode: 400,
+            headers: responseHeaders,
+            body: 'Bad Request'
         };
     }
     
@@ -30,27 +33,19 @@ exports.handler = async (event) => {
         
         if (!isValidUserId) {
             
-            /* Returning a 500 error if the value of the URL parameter "u" passed in the GET request contains characters other than letters and numbers */
+            /* Returning a 409 error if the value of the URL parameter "u" passed in the GET request contains characters other than letters and numbers */
             return {
-                statusCode: 500,
-                headers: {
-                    "Access-Control-Allow-Headers" : "Content-Type",
-                    "Access-Control-Allow-Origin": "*", // Allow from anywhere 
-                    "Access-Control-Allow-Methods": "GET" // Allow only GET request 
-                },
-                body: 'Internal Server Error'
+                statusCode: 409,
+                headers: responseHeaders,
+                body: 'Invalid Data'
             };
         }
     }
     else {
         return {
-            statusCode: 500,
-            headers: {
-                "Access-Control-Allow-Headers" : "Content-Type",
-                "Access-Control-Allow-Origin": "*", // Allow from anywhere 
-                "Access-Control-Allow-Methods": "GET" // Allow only GET request 
-            },
-            body: 'Internal Server Error'
+            statusCode: 415,
+            headers: responseHeaders,
+            body: 'Invalid Request'
         };
     }
     
@@ -72,11 +67,7 @@ exports.handler = async (event) => {
             return {
                 statusCode: 200,
                 //body: JSON.stringify(data.Item)
-                headers: {
-                    "Access-Control-Allow-Headers" : "Content-Type",
-                    "Access-Control-Allow-Origin": "*", // Allow from anywhere 
-                    "Access-Control-Allow-Methods": "GET" // Allow only GET request 
-                },
+                headers: responseHeaders,
                 body: 'OK'
             };
         }
@@ -85,11 +76,7 @@ exports.handler = async (event) => {
             /* Returning a 404 error if the value of the URL parameter "u" does not match any entry in the DynamoDB table */
             return {
                 statusCode: 404,
-                headers: {
-                    "Access-Control-Allow-Headers" : "Content-Type",
-                    "Access-Control-Allow-Origin": "*", // Allow from anywhere 
-                    "Access-Control-Allow-Methods": "GET" // Allow only GET request 
-                },
+                headers: responseHeaders,
                 body: 'Not Found'
             };
         }
@@ -100,11 +87,7 @@ exports.handler = async (event) => {
         /* Returning a 500 error for any other error not catched above */
         return {
             statusCode: 500,
-            headers: {
-                "Access-Control-Allow-Headers" : "Content-Type",
-                "Access-Control-Allow-Origin": "*", // Allow from anywhere 
-                "Access-Control-Allow-Methods": "GET" // Allow only GET request 
-            },
+            headers: responseHeaders,
             body: 'Internal Server Error'
         };
     }
