@@ -173,8 +173,8 @@ Resources:
 
 Outputs:
   WriteApiURL:
-    Description: 'API Gateway endpoint URL to write on the MiroBannerTermsAccepters database'
+    Description: 'API Gateway endpoint URL to write on the MiroBannerTermsAcceptersTable database'
     Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/w'
   ReadApiURL:
-    Description: 'API Gateway endpoint URL to read/query the MiroBannerTermsAccepters database'
+    Description: 'API Gateway endpoint URL to read/query the MiroBannerTermsAcceptersTable database'
     Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/q?u=MiroUserId'
