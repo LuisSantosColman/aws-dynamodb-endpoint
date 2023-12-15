@@ -3,11 +3,20 @@
 const AWS = require('aws-sdk');
 
 exports.handler = async (event) => {
+    
     const dynamoDB = new AWS.DynamoDB.DocumentClient();
     const tableName = process.env.TABLE_NAME;
     const apiPayload = JSON.parse(event.body);
+    
     const onlyLettersAndNumbers = function(str) {
     	return /^[A-Za-z0-9]*$/.test(str);
+    };
+    
+    const responseHeaders = {
+        "Access-Control-Allow-Headers": "Content-Type,Accept",
+        "Access-Control-Allow-Origin": "*", // Allow from anywhere 
+        "Access-Control-Allow-Methods": "OPTIONS,POST", // Allow only POST request
+        "Content-Type": "text/plain"
     };
     
     if (apiPayload.hasOwnProperty('id')) {
@@ -15,15 +24,11 @@ exports.handler = async (event) => {
         const isValidUserId = onlyLettersAndNumbers(userId);
         
         if (!isValidUserId || !userId) {
-            /* Returning a 500 error if the value of the "id" parameter posted contains characters other than a string with only letters and numbers */
+            /* Returning a 409 error if the value of the "id" parameter posted contains characters other than a string with only letters and numbers */
             return {
-                statusCode: 500,
-                headers: {
-                    "Access-Control-Allow-Headers": "Content-Type,Accept",
-                    "Access-Control-Allow-Origin": "*", // Allow from anywhere 
-                    "Access-Control-Allow-Methods": "OPTIONS,POST" // Allow only POST request 
-                },
-                body: 'Internal Server Error'
+                statusCode: 409,
+                headers: responseHeaders,
+                body: 'Invalid Data'
             };
         }
         
@@ -42,24 +47,16 @@ exports.handler = async (event) => {
             return {
                 statusCode: 200,
                 //body: JSON.stringify(result.Attributes)
-                headers: {
-                    "Access-Control-Allow-Headers": "Content-Type,Accept",
-                    "Access-Control-Allow-Origin": "*", // Allow from anywhere 
-                    "Access-Control-Allow-Methods": "OPTIONS,POST" // Allow only POST request 
-                },
+                headers: responseHeaders,
                 body: 'OK'
             };
         } catch (error) {
             console.error('Error updating item:', error);
             
-            /* Returning a 500 error for any other error not catched above */
+            /* Returning a 500 error for any other errors */
             return {
                 statusCode: 500,
-                headers: {
-                    "Access-Control-Allow-Headers": "Content-Type,Accept",
-                    "Access-Control-Allow-Origin": "*", // Allow from anywhere 
-                    "Access-Control-Allow-Methods": "OPTIONS,POST" // Allow only POST request 
-                },
+                headers: responseHeaders,
                 body: JSON.stringify({ error: 'Internal Server Error' })
             };
         }
@@ -67,13 +64,9 @@ exports.handler = async (event) => {
     else {
         /* Returning a 500 error if the "id" parameter was not passed in the posted payload */
         return {
-            statusCode: 500,
-            headers: {
-                "Access-Control-Allow-Headers": "Content-Type,Accept",
-                "Access-Control-Allow-Origin": "*", // Allow from anywhere 
-                "Access-Control-Allow-Methods": "OPTIONS,POST" // Allow only POST request 
-            },
-            body: 'Internal Server Error'
+            statusCode: 415,
+            headers: responseHeaders,
+            body: 'Invalid Request'
         };
     }
 };
