@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script id="miro-sdk2" src="https://miro.com/app/static/sdk/v2/miro.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/mirotone@^5/dist/styles.css">
+    <link rel="icon" href="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=">
+    <style type="text/css">
+      body {
+        font-family: Arial, sans-serif, Helvetica;
+        font-size: 15px;
+      }
+      a {
+        text-decoration: none;
+      }
+      .centered-content {
+        box-sizing: border-box;
+        max-width: 520px;
+        top: 50%;
+        left: 50%;
+        position: absolute;
+        transform: translateX(-50%) translateY(-50%);
+        cursor: pointer;
+        text-align: center;
+      }
+      .modal-company-logo {
+        margin-bottom: 10px;
+      }
+      .centered-text {
+        padding: 16px 0;
+        line-height: 1.5;
+      }
+      .accept-button-bottom {
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="miro_modal_content" class="miro-modal-content">
+      <div class="miro_migration_extension_modal"> 
+        <div class="centered-content">
+          <div class="modal-company-logo">
+            <img src="img/test_company_logo.svg" alt="Company Logo">
+          </div>
+          <div class="centered-text"> 
+            To use Company Inc.'s Miro boards, please accept the <a href="#">Usage Policy</a>.<br>
+            Please reach out to your IT administrator for more information on the security requirements for using Company Inc.'s Miro boards.
+          </div>
+          <div class="accept-button-bottom">
+            <button id="accept_bottom" class="button button-primary button-small">Accept</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      async function callApi(url,method,body,token) {
+        const reqHeaders = {
+          'accept': 'application/json',
+          'cache-control': 'no-cache',
+          'pragma': 'no-cache',
+          //'authorization': token //Uncomment this line if you are using an authorization token
+        };
+        const reqOptions = {
+          method: method,
+          headers: reqHeaders,
+          body: body,
+          mode: "cors"
+        };
+        const reqResponse = await fetch(url, reqOptions)
+          .then((res) => {
+            return res['json']().then((data) => ({ status: res.status, body: data }));
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+            return error;
+          });
+        return reqResponse;
+      }
+      async function acceptTerms() {
+        const userInfo = await miro.board.getUserInfo();
+        const userId = userInfo.id;
+        const apiUrl = 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/w';
+        const body = JSON.stringify({id: userId});
+        const record = await callApi(apiUrl,'POST',body);
+        if (record.status === 200) {
+          return true;
+        }
+        else {
+          return record.body;
+        }
+      }
+      document.getElementById('accept_bottom').addEventListener('click', async e => {
+        var accept = await acceptTerms();
+        if (accept) {
+          console.log('Miro Banner Terms successfully accepted and recorded');
+        }
+      });
+    </script>
+  </body>
+</html>
