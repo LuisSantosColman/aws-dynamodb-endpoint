@@ -28,7 +28,7 @@ exports.handler = async (event) => {
             return {
                 statusCode: 409,
                 headers: responseHeaders,
-                body: 'Invalid Data'
+                body: JSON.stringify({error: 'Invalid Data'})
             };
         }
         
@@ -48,7 +48,7 @@ exports.handler = async (event) => {
                 statusCode: 200,
                 //body: JSON.stringify(result.Attributes)
                 headers: responseHeaders,
-                body: 'OK'
+                body: JSON.stringify({result: 'OK'})
             };
         } catch (error) {
             console.error('Error updating item:', error);
@@ -66,7 +66,7 @@ exports.handler = async (event) => {
         return {
             statusCode: 415,
             headers: responseHeaders,
-            body: 'Invalid Request'
+            body: JSON.stringify({error: 'Invalid Request'})
         };
     }
 };
