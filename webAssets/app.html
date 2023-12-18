@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script id="miro-sdk2" src="https://miro.com/app/static/sdk/v2/miro.js"></script>
+    <link rel="icon" href="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=">
+  </head>
+  <body>
+    <script>
+      async function callApi(url,method,body,token) {
+        const reqHeaders = {
+          'accept': 'application/json',
+          'cache-control': 'no-cache',
+          'pragma': 'no-cache',
+          //'authorization': token //Uncomment this line if you are using an authorization token
+        };
+        const reqOptions = {
+          method: method,
+          headers: reqHeaders,
+          body: body,
+          mode: "cors"
+        };
+        const reqResponse = await fetch(url, reqOptions)
+          .then((res) => {
+            return res['json']().then((data) => ({ status: res.status, body: data }));
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+            return error;
+          });
+        return reqResponse;
+      }
+      function generateRandomString(length) {
+        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var result = '';
+        var charactersLength = characters.length;
+        for (var i = 0; i < length; i++) {
+          result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+      }
+      async function triggerModal(seconds) {
+        while (!await miro.board.ui.canOpenModal()) {
+          console.log(`There is another modal currently open - retrying in ${seconds} secs`);
+          await new Promise(resolve => setTimeout(resolve, seconds * 1000))
+        }
+        const random = generateRandomString(7);
+        const modal = await miro.board.ui.openModal({
+          url: `https://${MiroBannerTermsModalHtml}.s3.${AWS::Region}.amazonaws.com/modal.html?v={random}`,
+          width: 700,
+          height: 400,
+          fullscreen: false
+        });
+        return true;
+      };
+      async function getMiroTermsModalFrame() {
+        const parentFrames = window.parent.frames;
+        let miroModalTerms = null;
+        for(let a=0; a < parentFrames.length; a++) {
+          var sameOrigin;
+          try {
+            sameOrigin = window.parent.frames[a].location.host == window.location.host;
+          }
+          catch(e) {
+            sameOrigin = false;
+          }
+          if (sameOrigin) {
+            if (parentFrames[a].location.href.indexOf('/modal.html?') !== -1) {
+              miroModalTerms = parentFrames[a];
+              return miroModalTerms;
+            }
+          }
+        }
+        return miroModalTerms;
+      }
+      async function checkModal() {
+        let miroModal = await getMiroTermsModalFrame();
+        while (miroModal !== null) {
+          miroModal = await getMiroTermsModalFrame();
+          console.log(`Miro Banner Terms is still open - retrying...`);
+          await new Promise(resolve => setTimeout(resolve, 1000))
+        }
+        console.log('Miro Banner Terms was closed');
+        init();
+      }
+      async function init() {
+        const userInfo = await miro.board.getUserInfo();
+        const userId = userInfo.id;
+        const apiUrl = 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/q?u=' + userId;
+        const query = await callApi(apiUrl,'GET',null);
+        if (query.status !== 200) {
+          // Adjust the number of seconds to wait and retry in case the modal cannot be opened directly, if there is another modal corrently open
+          const showModal = await triggerModal(5);
+          if (showModal) {
+            const hasModalClosed = await checkModal()
+          }
+        }
+      }
+      init();
+    </script>
+  </body>
+</html>
