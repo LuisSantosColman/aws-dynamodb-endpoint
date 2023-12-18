@@ -13,7 +13,7 @@ exports.handler = async (event) => {
         "Access-Control-Allow-Headers" : "Accept",
         "Access-Control-Allow-Origin": "*", // Allow from anywhere 
         "Access-Control-Allow-Methods": "GET", // Allow only GET request
-        "Content-Type": "text/plain"
+        "Content-Type": "application/json"
     };
     
     if (event && event.hasOwnProperty('queryStringParameters') && !event.queryStringParameters) {
@@ -22,7 +22,7 @@ exports.handler = async (event) => {
         return {
             statusCode: 400,
             headers: responseHeaders,
-            body: 'Bad Request'
+            body: JSON.stringify({error: 'Bad Request'})
         };
     }
     
@@ -37,7 +37,7 @@ exports.handler = async (event) => {
             return {
                 statusCode: 409,
                 headers: responseHeaders,
-                body: 'Invalid Data'
+                body: JSON.stringify({error: 'Invalid Data'})
             };
         }
     }
@@ -45,7 +45,7 @@ exports.handler = async (event) => {
         return {
             statusCode: 415,
             headers: responseHeaders,
-            body: 'Invalid Request'
+            body: JSON.stringify({error: 'Invalid Request'})
         };
     }
     
@@ -68,7 +68,7 @@ exports.handler = async (event) => {
                 statusCode: 200,
                 //body: JSON.stringify(data.Item)
                 headers: responseHeaders,
-                body: 'OK'
+                body: JSON.stringify({result: 'success'})
             };
         }
         else {
@@ -77,7 +77,7 @@ exports.handler = async (event) => {
             return {
                 statusCode: 404,
                 headers: responseHeaders,
-                body: 'Not Found'
+                body: JSON.stringify({error: 'Not Found'})
             };
         }
     } 
@@ -88,7 +88,7 @@ exports.handler = async (event) => {
         return {
             statusCode: 500,
             headers: responseHeaders,
-            body: 'Internal Server Error'
+            body: JSON.stringify({error: 'Internal Server Error'})
         };
     }
 };
