@@ -319,7 +319,7 @@ Resources:
     Properties:
       Bucket: !Ref MiroBannerTermsWebAssets
       Key: img/test_company_logo.svg
-      Source: img/test_company_logo.svg
+      Source: webAssets/img/test_company_logo.svg
 
   ## Main Miro app HTML file
   MiroBannerTermsMainApp:
