@@ -48,7 +48,7 @@ exports.handler = async (event) => {
                 statusCode: 200,
                 //body: JSON.stringify(result.Attributes)
                 headers: responseHeaders,
-                body: JSON.stringify({result: 'OK'})
+                body: JSON.stringify({result: 'success'})
             };
         } catch (error) {
             console.error('Error updating item:', error);
