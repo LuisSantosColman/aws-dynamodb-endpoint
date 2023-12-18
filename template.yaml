@@ -172,7 +172,7 @@ Resources:
       Principal: 'apigateway.amazonaws.com'
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${MiroBannerTermsAPI}/*/*/*'
 
-  ## S3 bucket
+  ## S3 Bucket
   MiroBannerTermsWebAssets:
     Type: AWS::S3::Bucket
     Properties:
@@ -212,7 +212,7 @@ Resources:
   Properties:
     Bucket: !Ref MiroBannerTermsModalHtml
     Key: modal.html
-    Content: |
+    Body: |
       <!DOCTYPE html>
       <html lang="en">
         <head>
@@ -327,7 +327,7 @@ Resources:
   Properties:
     Bucket: !Ref MiroBannerTermsMainApp
     Key: app.html
-    Content: |
+    Body: |
       <!DOCTYPE html>
       <html lang="en">
         <head>
