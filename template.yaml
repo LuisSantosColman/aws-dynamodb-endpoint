@@ -3,7 +3,43 @@ Transform: 'AWS::Serverless-2016-10-31'
 Description: Miro Banner Terms Accepters
 
 Resources:
-  ## Database where users who have accepted the Miro Banner will be captured.
+  ## S3 bucket to host the web assets for the Miro app
+  S3MiroBannerAccepters:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join ['', ['s3-', !Join ['-', [!Ref AWS::StackName, !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]]]
+      CorsConfiguration:
+        CorsRules:
+        - AllowedHeaders:
+            - '*'
+          AllowedMethods:
+            - GET
+            - PUT
+            - HEAD
+          AllowedOrigins:
+            - !Join ['', ['https://s3-', !Join ['-', [!Ref AWS::StackName, !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]], '.s3.', !Ref AWS::Region, '.amazonaws.com']]
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+
+  ## This permission will make the contents of the S3 bucket publicly readable
+  ProductBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties: 
+      Bucket: !Ref S3MiroBannerAccepters
+      PolicyDocument:
+        Id: PublicReadPolicy
+        Version: '2012-10-17'
+        Statement:
+        - Sid: PublicReadForGetBucketObjects
+          Effect: Allow
+          Principal: '*'
+          Action: s3:GetObject
+          Resource: !Sub 'arn:aws:s3:::${S3MiroBannerAccepters}/*'
+
+  ## DynamoDB database where users who have accepted the Miro Banner will be captured.
   ## The "id" will be the numeric Miro User ID, stored as a string. You may use a hashed version of the Miro ID in this table instead (if desired)
   MiroBannerTermsAcceptersTable:
     Type: 'AWS::Serverless::SimpleTable'
@@ -12,7 +48,7 @@ Resources:
         Name: id
         Type: String
 
-  ## IAM Role for the "Read" Lambda Function to query/read the database
+  ## IAM Role for the "Read" Lambda Function to query/read the DynamoDB database
   MiroBannerTermsReadFunctionRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -35,7 +71,7 @@ Resources:
                   - 'dynamodb:GetItem'
                 Resource: !GetAtt MiroBannerTermsAcceptersTable.Arn
   
-  ## IAM Role for the "Write" Lambda Function to write on the database
+  ## IAM Role for the "Write" Lambda Function to write on the DynamoDB database
   MiroBannerTermsWriteFunctionRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -103,7 +139,23 @@ Resources:
                 passthroughBehavior: 'when_no_match'
                 httpMethod: POST
                 type: aws_proxy
-              responses: {}
+              responses:
+                  '200':
+                  description: 'OK'
+              x-amazon-apigateway-integration:
+                type: mock
+                requestTemplates:
+                  application/json: '{"statusCode": 200}'
+                responses:
+                  'default':
+                    statusCode: '200'
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin:
+                        !Join
+                        - ''
+                        - - "'"
+                          - Fn::Sub: 'https://s3-${S3MiroBannerAccepters}.s3.${AWS::Region}.amazonaws.com'
+                          - "'"
               security:
                 - sigv4: []
             options:
@@ -129,7 +181,12 @@ Resources:
                     responseParameters:
                       method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
                       method.response.header.Access-Control-Allow-Methods : "'*'"
-                      method.response.header.Access-Control-Allow-Origin : "'*'"
+                      method.response.header.Access-Control-Allow-Origin :
+                        !Join
+                          - ''
+                          - - "'"
+                            - Fn::Sub: 'https://s3-${S3MiroBannerAccepters}.s3.${AWS::Region}.amazonaws.com'
+                            - "'"
                     responseTemplates:
                       application/json: |
                         {}
@@ -150,7 +207,23 @@ Resources:
                 passthroughBehavior: 'when_no_match'
                 httpMethod: POST
                 type: aws_proxy
-              responses: {}
+              responses:
+                '200':
+                  description: 'OK'
+              x-amazon-apigateway-integration:
+                type: mock
+                requestTemplates:
+                  application/json: '{"statusCode": 200}'
+                responses:
+                  'default':
+                    statusCode: '200'
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin:
+                        !Join
+                        - ''
+                        - - "'"
+                          - Fn::Sub: 'https://s3-${S3MiroBannerAccepters}.s3.${AWS::Region}.amazonaws.com'
+                          - "'"
               security:
                 - sigv4: []
 
@@ -172,274 +245,10 @@ Resources:
       Principal: 'apigateway.amazonaws.com'
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${MiroBannerTermsAPI}/*/*/*'
 
-  ## S3 Bucket
-  MiroBannerTermsWebAssets:
-    Type: AWS::S3::Bucket
-    Properties:
-      CorsConfiguration:
-        CorsRules:
-        - AllowedHeaders:
-            - "*"
-          AllowedMethods:
-            - GET
-          AllowedOrigins:
-            - "*"
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: false
-        BlockPublicPolicy: false
-        IgnorePublicAcls: false
-        RestrictPublicBuckets: false
-
-  ## S3 Bucket Policy - This permission will make the contents of the S3 bucket publicly readable
-  ProductBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties: 
-      Bucket: !Ref MiroBannerTermsWebAssets
-      PolicyDocument:
-        Id: PublicReadPolicy
-        Version: '2012-10-17'
-        Statement:
-        - Sid: PublicReadForGetBucketObjects
-          Effect: Allow
-          Principal: "*"
-          Action: s3:GetObject
-          Resource: !Sub 'arn:aws:s3:::${MiroBannerTermsWebAssets}/*'
-          Condition: {}
-
-  ## Miro Banner HTML file hosted on the S3 bocket "MiroBannerTermsWebAssets"
-  MiroBannerTermsModalHtml:
-    Type: 'AWS::S3::Object'
-    Properties:
-      Bucket: !Ref MiroBannerTermsModalHtml
-      Key: modal.html
-      Body: !Sub |
-        <!DOCTYPE html>
-        <html lang="en">
-          <head>
-            <script id="miro-sdk2" src="https://miro.com/app/static/sdk/v2/miro.js"></script>
-            <link rel="stylesheet" href="https://unpkg.com/mirotone@^5/dist/styles.css">
-            <link rel="icon" href="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=">
-            <style type="text/css">
-              body {
-                font-family: Arial, sans-serif, Helvetica;
-                font-size: 15px;
-              }
-              a {
-                text-decoration: none;
-              }
-              .centered-content {
-                box-sizing: border-box;
-                max-width: 520px;
-                top: 50%;
-                left: 50%;
-                position: absolute;
-                transform: translateX(-50%) translateY(-50%);
-                cursor: pointer;
-                text-align: center;
-              }
-              .modal-company-logo {
-                margin-bottom: 10px;
-              }
-              .centered-text {
-                padding: 16px 0;
-                line-height: 1.5;
-              }
-              .accept-button-bottom {
-                margin-top: 10px;
-              }
-            </style>
-          </head>
-          <body>
-            <div id="miro_modal_content" class="miro-modal-content">
-              <div class="miro_migration_extension_modal"> 
-                <div class="centered-content">
-                  <div class="modal-company-logo">
-                    <img src="img/test_company_logo.svg" alt="Company Logo">
-                  </div>
-                  <div class="centered-text"> 
-                    To use Company Inc.'s Miro boards, please accept the <a href="#">Usage Policy</a>.<br>
-                    Please reach out to your IT administrator for more information on the security requirements for using Company Inc.'s Miro boards.
-                  </div>
-                  <div class="accept-button-bottom">
-                    <button id="accept_bottom" class="button button-primary button-small">Accept</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <script>
-              async function callApi(url,method,body,token) {
-                const reqHeaders = {
-                  'accept': 'application/json',
-                  'cache-control': 'no-cache',
-                  'pragma': 'no-cache',
-                  //'authorization': token //Uncomment this line if you are using an authorization token
-                };
-                const reqOptions = {
-                  method: method,
-                  headers: reqHeaders,
-                  body: body,
-                  mode: "cors"
-                };
-                const reqResponse = await fetch(url, reqOptions)
-                  .then((res) => {
-                    return res['json']().then((data) => ({ status: res.status, body: data }));
-                  })
-                  .catch((error) => {
-                    console.error('Error:', error);
-                    return error;
-                  });
-                return reqResponse;
-              }
-              async function acceptTerms() {
-                const userInfo = await miro.board.getUserInfo();
-                const userId = userInfo.id;
-                const apiUrl = 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/w';
-                const body = JSON.stringify({id: userId});
-                const record = await callApi(apiUrl,'POST',body);
-                if (record.status === 200) {
-                  return true;
-                }
-                else {
-                  return record.body;
-                }
-              }
-              document.getElementById('accept_bottom').addEventListener('click', async e => {
-                var accept = await acceptTerms();
-                if (accept) {
-                  console.log('Miro Banner Terms successfully accepted and recorded');
-                }
-              });
-            </script>
-          </body>
-        </html>
-  
-  ## Image assest for the Miro Modal hosted on the S3 bocket "MiroBannerTermsWebAssets"
-    CompanyLogoImage:
-    Type: 'AWS::S3::Object'
-    Properties:
-      Bucket: !Ref MiroBannerTermsWebAssets
-      Key: img/test_company_logo.svg
-      Source: webAssets/img/test_company_logo.svg
-
-  ## Main Miro app HTML file
-  MiroBannerTermsMainApp:
-    Type: 'AWS::S3::Object'
-    Properties:
-      Bucket: !Ref MiroBannerTermsMainApp
-      Key: app.html
-      Body: !Sub |
-        <!DOCTYPE html>
-        <html lang="en">
-          <head>
-            <script id="miro-sdk2" src="https://miro.com/app/static/sdk/v2/miro.js"></script>
-            <link rel="icon" href="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=">
-          </head>
-          <body>
-            <script>
-              async function callApi(url,method,body,token) {
-                const reqHeaders = {
-                  'accept': 'application/json',
-                  'cache-control': 'no-cache',
-                  'pragma': 'no-cache',
-                  //'authorization': token //Uncomment this line if you are using an authorization token
-                };
-                const reqOptions = {
-                  method: method,
-                  headers: reqHeaders,
-                  body: body,
-                  mode: "cors"
-                };
-                const reqResponse = await fetch(url, reqOptions)
-                  .then((res) => {
-                    return res['json']().then((data) => ({ status: res.status, body: data }));
-                  })
-                  .catch((error) => {
-                    console.error('Error:', error);
-                    return error;
-                  });
-                return reqResponse;
-              }
-              function generateRandomString(length) {
-                var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-                var result = '';
-                var charactersLength = characters.length;
-                for (var i = 0; i < length; i++) {
-                  result += characters.charAt(Math.floor(Math.random() * charactersLength));
-                }
-                return result;
-              }
-              async function triggerModal(seconds) {
-                while (!await miro.board.ui.canOpenModal()) {
-                  console.log(`There is another modal currently open - retrying in ${seconds} secs`);
-                  await new Promise(resolve => setTimeout(resolve, seconds * 1000))
-                }
-                const random = generateRandomString(7);
-                const modal = await miro.board.ui.openModal({
-                  url: `https://${MiroBannerTermsModalHtml}.s3.${AWS::Region}.amazonaws.com/modal.html?v={random}`,
-                  width: 700,
-                  height: 400,
-                  fullscreen: false
-                });
-                return true;
-              };
-              async function getMiroTermsModalFrame() {
-                const parentFrames = window.parent.frames;
-                let miroModalTerms = null;
-                for(let a=0; a < parentFrames.length; a++) {
-                  var sameOrigin;
-                  try {
-                    sameOrigin = window.parent.frames[a].location.host == window.location.host;
-                  }
-                  catch(e) {
-                    sameOrigin = false;
-                  }
-                  if (sameOrigin) {
-                    if (parentFrames[a].location.href.indexOf('/modal.html?') !== -1) {
-                      miroModalTerms = parentFrames[a];
-                      return miroModalTerms;
-                    }
-                  }
-                }
-                return miroModalTerms;
-              }
-              async function checkModal() {
-                let miroModal = await getMiroTermsModalFrame();
-                while (miroModal !== null) {
-                  miroModal = await getMiroTermsModalFrame();
-                  console.log(`Miro Banner Terms is still open - retrying...`);
-                  await new Promise(resolve => setTimeout(resolve, 1000))
-                }
-                console.log('Miro Banner Terms was closed');
-                init();
-              }
-              async function init() {
-                const userInfo = await miro.board.getUserInfo();
-                const userId = userInfo.id;
-                const apiUrl = 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/q?u=' + userId;
-                const query = await callApi(apiUrl,'GET',null);
-                if (query.status !== 200) {
-                  // Adjust the number of seconds to wait and retry in case the modal cannot be opened directly, if there is another modal corrently open
-                  const showModal = await triggerModal(5);
-                  if (showModal) {
-                    const hasModalClosed = await checkModal()
-                  }
-                }
-              }
-              init();
-            </script>
-          </body>
-        </html>
-
 Outputs:
-  MainMiroAppURL:
-    Description: 'Miro app main URL - Paste the below URL into the App settings under "App URL" in Miro'
-    Value: !Sub 'https://${MiroBannerTermsMainApp}.s3.${AWS::Region}.amazonaws.com/app.html'
-  MiroBannerModalURL:
-    Description: 'Miro modal URL - This is the actual modal that users will see on the Miral board'
-    Value: !Sub 'https://${MiroBannerTermsModalHtml}.s3.${AWS::Region}.amazonaws.com/modal.html'
-  ReadApiURL:
-    Description: 'API Gateway endpoint URL to read/query the MiroBannerTermsAcceptersTable database'
-    Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/q?u='
   WriteApiURL:
     Description: 'API Gateway endpoint URL to write on the MiroBannerTermsAcceptersTable database'
     Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/w'
+  ReadApiURL:
+    Description: 'API Gateway endpoint URL to read/query the MiroBannerTermsAcceptersTable database'
+    Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/q?u=MiroUserId'
