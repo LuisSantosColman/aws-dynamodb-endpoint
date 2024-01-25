@@ -141,7 +141,7 @@ Resources:
                 type: aws_proxy
               responses:
                 '200':
-                description: 'OK'
+                  description: 'OK'
               x-amazon-apigateway-integration:
                 type: mock
                 requestTemplates:
