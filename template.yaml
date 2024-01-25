@@ -140,8 +140,8 @@ Resources:
                 httpMethod: POST
                 type: aws_proxy
               responses:
-                  '200':
-                  description: 'OK'
+                '200':
+                description: 'OK'
               x-amazon-apigateway-integration:
                 type: mock
                 requestTemplates:
