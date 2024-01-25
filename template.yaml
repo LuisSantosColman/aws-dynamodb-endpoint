@@ -4,10 +4,10 @@ Description: Miro Banner Terms Accepters
 
 Resources:
   ## S3 Bucket
-  MiroBannerTermsWebAssets:
+  MiroTermsBannerFrontend:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join ['', ['s3-', !Join ['-', [!Ref AWS::StackName, !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]]]
+      BucketName: !Join ['', ['s3-', !Join ['-', ['miro-terms-banner-frontend', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]]]
       CorsConfiguration:
         CorsRules:
         - AllowedHeaders:
@@ -15,7 +15,7 @@ Resources:
           AllowedMethods:
             - GET
           AllowedOrigins:
-            - !Join ['', ['https://s3-', !Join ['-', [!Ref AWS::StackName, !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]], '.s3.', !Ref AWS::Region, '.amazonaws.com']]
+            - !Join ['', ['https://s3-', !Join ['-', ['miro-terms-banner-frontend', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]], '.s3.', !Ref AWS::Region, '.amazonaws.com']]
       PublicAccessBlockConfiguration:
         BlockPublicAcls: false
         BlockPublicPolicy: false
@@ -26,7 +26,7 @@ Resources:
   ProductBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties: 
-      Bucket: !Ref MiroBannerTermsWebAssets
+      Bucket: !Ref MiroTermsBannerFrontend
       PolicyDocument:
         Id: PublicReadPolicy
         Version: '2012-10-17'
@@ -35,7 +35,7 @@ Resources:
           Effect: Allow
           Principal: '*'
           Action: s3:GetObject
-          Resource: !Sub 'arn:aws:s3:::${MiroBannerTermsWebAssets}/*'
+          Resource: !Sub 'arn:aws:s3:::${MiroTermsBannerFrontend}/*'
           Condition: {}
 
   ## Database where users who have accepted the Miro Banner will be captured.
@@ -153,7 +153,7 @@ Resources:
                         !Join
                           - ''
                           - - "'"
-                            - Fn::Sub: 'https://s3-${S3MiroBannerAccepters}.s3.${AWS::Region}.amazonaws.com'
+                            - Fn::Sub: 'https://s3-${MiroTermsBannerFrontend}.s3.${AWS::Region}.amazonaws.com'
                             - "'"
               security:
                 - sigv4: []
@@ -184,7 +184,7 @@ Resources:
                         !Join
                           - ''
                           - - "'"
-                            - Fn::Sub: 'https://s3-${S3MiroBannerAccepters}.s3.${AWS::Region}.amazonaws.com'
+                            - Fn::Sub: 'https://s3-${MiroTermsBannerFrontend}.s3.${AWS::Region}.amazonaws.com'
                             - "'"
                     responseTemplates:
                       application/json: |
@@ -221,7 +221,7 @@ Resources:
                         !Join
                           - ''
                           - - "'"
-                            - Fn::Sub: 'https://s3-${S3MiroBannerAccepters}.s3.${AWS::Region}.amazonaws.com'
+                            - Fn::Sub: 'https://s3-${MiroTermsBannerFrontend}.s3.${AWS::Region}.amazonaws.com'
                             - "'"
               security:
                 - sigv4: []
