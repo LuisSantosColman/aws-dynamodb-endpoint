@@ -3,8 +3,8 @@ Transform: 'AWS::Serverless-2016-10-31'
 Description: Miro Banner Terms Accepters
 
 Resources:
-  ## S3 bucket to host the web assets for the Miro app
-  S3MiroBannerAccepters:
+  ## S3 Bucket
+  MiroBannerTermsWebAssets:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Join ['', ['s3-', !Join ['-', [!Ref AWS::StackName, !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]]]
@@ -14,8 +14,6 @@ Resources:
             - '*'
           AllowedMethods:
             - GET
-            - PUT
-            - HEAD
           AllowedOrigins:
             - !Join ['', ['https://s3-', !Join ['-', [!Ref AWS::StackName, !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]], '.s3.', !Ref AWS::Region, '.amazonaws.com']]
       PublicAccessBlockConfiguration:
@@ -24,11 +22,11 @@ Resources:
         IgnorePublicAcls: false
         RestrictPublicBuckets: false
 
-  ## This permission will make the contents of the S3 bucket publicly readable
+  ## S3 Bucket Policy - This permission will make the contents of the S3 bucket publicly readable
   ProductBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties: 
-      Bucket: !Ref S3MiroBannerAccepters
+      Bucket: !Ref MiroBannerTermsWebAssets
       PolicyDocument:
         Id: PublicReadPolicy
         Version: '2012-10-17'
@@ -37,9 +35,10 @@ Resources:
           Effect: Allow
           Principal: '*'
           Action: s3:GetObject
-          Resource: !Sub 'arn:aws:s3:::${S3MiroBannerAccepters}/*'
+          Resource: !Sub 'arn:aws:s3:::${MiroBannerTermsWebAssets}/*'
+          Condition: {}
 
-  ## DynamoDB database where users who have accepted the Miro Banner will be captured.
+  ## Database where users who have accepted the Miro Banner will be captured.
   ## The "id" will be the numeric Miro User ID, stored as a string. You may use a hashed version of the Miro ID in this table instead (if desired)
   MiroBannerTermsAcceptersTable:
     Type: 'AWS::Serverless::SimpleTable'
@@ -48,7 +47,7 @@ Resources:
         Name: id
         Type: String
 
-  ## IAM Role for the "Read" Lambda Function to query/read the DynamoDB database
+  ## IAM Role for the "Read" Lambda Function to query/read the database
   MiroBannerTermsReadFunctionRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -71,7 +70,7 @@ Resources:
                   - 'dynamodb:GetItem'
                 Resource: !GetAtt MiroBannerTermsAcceptersTable.Arn
   
-  ## IAM Role for the "Write" Lambda Function to write on the DynamoDB database
+  ## IAM Role for the "Write" Lambda Function to write on the database
   MiroBannerTermsWriteFunctionRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -245,10 +244,9 @@ Resources:
       Principal: 'apigateway.amazonaws.com'
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${MiroBannerTermsAPI}/*/*/*'
 
-Outputs:
+  ReadApiURL:
+    Description: 'API Gateway endpoint URL to read/query the MiroBannerTermsAcceptersTable database'
+    Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/q?u='
   WriteApiURL:
     Description: 'API Gateway endpoint URL to write on the MiroBannerTermsAcceptersTable database'
     Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/w'
-  ReadApiURL:
-    Description: 'API Gateway endpoint URL to read/query the MiroBannerTermsAcceptersTable database'
-    Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/q?u=MiroUserId'
