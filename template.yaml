@@ -151,10 +151,10 @@ Resources:
                     responseParameters:
                       method.response.header.Access-Control-Allow-Origin:
                         !Join
-                        - ''
-                        - - "'"
-                          - Fn::Sub: 'https://s3-${S3MiroBannerAccepters}.s3.${AWS::Region}.amazonaws.com'
-                          - "'"
+                          - ''
+                          - - "'"
+                            - Fn::Sub: 'https://s3-${S3MiroBannerAccepters}.s3.${AWS::Region}.amazonaws.com'
+                            - "'"
               security:
                 - sigv4: []
             options:
@@ -212,17 +212,17 @@ Resources:
               x-amazon-apigateway-integration:
                 type: mock
                 requestTemplates:
-                  application/json: '{"statusCode": 200}'
+                  application/json: '{x"statusCode": 200}'
                 responses:
                   'default':
                     statusCode: '200'
                     responseParameters:
                       method.response.header.Access-Control-Allow-Origin:
                         !Join
-                        - ''
-                        - - "'"
-                          - Fn::Sub: 'https://s3-${S3MiroBannerAccepters}.s3.${AWS::Region}.amazonaws.com'
-                          - "'"
+                          - ''
+                          - - "'"
+                            - Fn::Sub: 'https://s3-${S3MiroBannerAccepters}.s3.${AWS::Region}.amazonaws.com'
+                            - "'"
               security:
                 - sigv4: []
 
@@ -244,6 +244,8 @@ Resources:
       Principal: 'apigateway.amazonaws.com'
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${MiroBannerTermsAPI}/*/*/*'
 
+## Take a note of the outputs for deploying the workflow templates in this sample application
+Outputs:
   ReadApiURL:
     Description: 'API Gateway endpoint URL to read/query the MiroBannerTermsAcceptersTable database'
     Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/q?u='
