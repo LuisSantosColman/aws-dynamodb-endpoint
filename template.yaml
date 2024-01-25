@@ -126,15 +126,6 @@ Resources:
     Type: 'AWS::Serverless::Api'
     Properties:
       StageName: Prod
-      Cors:
-        AllowMethods: "'*'"
-        AllowHeaders: "'*'"
-        AllowOrigin:
-          !Join
-            - ''
-            - - "'"
-              - Fn::Sub: 'https://s3-${MiroTermsBannerFrontend}.s3.${AWS::Region}.amazonaws.com'
-              - "'"
       DefinitionBody:
         swagger: '2.0'
         info:
@@ -177,7 +168,7 @@ Resources:
                         !Join
                           - ''
                           - - "'"
-                            - Fn::Sub: 'https://s3-${MiroTermsBannerFrontend}.s3.${AWS::Region}.amazonaws.com'
+                            - Fn::Sub: 'https://${MiroTermsBannerFrontend}.s3.${AWS::Region}.amazonaws.com'
                             - "'"
                     responseTemplates:
                       application/json: |
