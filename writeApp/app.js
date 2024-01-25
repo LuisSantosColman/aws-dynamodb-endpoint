@@ -14,7 +14,7 @@ exports.handler = async (event) => {
     
     const responseHeaders = {
         "Access-Control-Allow-Headers": "Content-Type,Accept",
-        "Access-Control-Allow-Origin": "*", // Allow from anywhere 
+        /*"Access-Control-Allow-Origin": "*", // Allow from anywhere*/
         "Access-Control-Allow-Methods": "OPTIONS,POST", // Allow only POST request
         "Content-Type": "application/json"
     };
