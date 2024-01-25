@@ -214,6 +214,9 @@ Resources:
 
 ## Take a note of the outputs for deploying the workflow templates in this sample application
 Outputs:
+  S3BucketBaseUrl:
+    Description: 'Base URL of the S3 bucket - this public S3 bucket will be used to host the frontend assets of the Miro app'
+    Value: !Sub 'https://${MiroTermsBannerFrontend}.s3.${AWS::Region}.amazonaws.com'
   ReadApiURL:
     Description: 'API Gateway endpoint URL to read/query the MiroBannerTermsAcceptersTable database'
     Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/q?u='
