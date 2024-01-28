@@ -257,11 +257,14 @@ Resources:
 ## Take a note of the outputs for deploying the workflow templates in this sample application
 Outputs:
   S3BucketBaseUrl:
-    Description: 'Base URL of the S3 bucket - this public S3 bucket will be used to host the frontend assets of the Miro app'
+    Description: 'Base URL of the S3 bucket where the web assets of the Miro app will be hosted'
     Value: !Sub 'https://${MiroTermsBannerFrontend}.s3.${AWS::Region}.amazonaws.com'
-  ReadApiURL:
-    Description: 'API Gateway endpoint URL to read/query the MiroBannerTermsAcceptersTable database'
-    Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/q?u='
-  WriteApiURL:
-    Description: 'API Gateway endpoint URL to write on the MiroBannerTermsAcceptersTable database'
-    Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/w'
+  ReadApiBaseURL:
+    Description: 'Base URL of HTTP API endpoint to read/query the MiroBannerTermsAcceptersTable database'
+    Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com'
+  WriteApiBaseURL:
+    Description: 'Base URL of HTTP API endpoint to write on the MiroBannerTermsAcceptersTable database'
+    Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com'
+  DynamoDBTableName:
+    Description: 'Name of the DynamoDB table that captures users who have accepted the T&C banner in Miro'
+    Value: !Ref MiroBannerTermsAcceptersTable
