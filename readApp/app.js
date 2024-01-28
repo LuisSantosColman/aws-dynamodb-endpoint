@@ -10,8 +10,8 @@ exports.handler = async (event) => {
     };
     
     const responseHeaders = {
-        "Access-Control-Allow-Headers" : "Accept",
-        /*"Access-Control-Allow-Origin": "*", // Allow from anywhere*/
+        "Access-Control-Allow-Headers" : "Content-Type,Accept,Cache-Control",
+        "Access-Control-Allow-Origin": "*", // Allow from anywhere
         "Access-Control-Allow-Methods": "GET", // Allow only GET request
         "Content-Type": "application/json"
     };
