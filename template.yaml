@@ -163,7 +163,7 @@ Resources:
                     statusCode: '200'
                     responseParameters:
                       method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,Cache-Control'"
-                      method.response.header.Access-Control-Allow-Methods : "'OPTIONS,GET'"
+                      method.response.header.Access-Control-Allow-Methods : "'OPTIONS,POST'"
                       method.response.header.Access-Control-Allow-Origin :
                         !Join
                           - ''
@@ -214,8 +214,8 @@ Resources:
                   'default':
                     statusCode: '200'
                     responseParameters:
-                      method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
-                      method.response.header.Access-Control-Allow-Methods : "'*'"
+                      method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,Cache-Control'"
+                      method.response.header.Access-Control-Allow-Methods : "'OPTIONS,GET'"
                       method.response.header.Access-Control-Allow-Origin :
                         !Join
                           - ''
