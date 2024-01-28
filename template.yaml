@@ -162,7 +162,7 @@ Resources:
                   'default':
                     statusCode: '200'
                     responseParameters:
-                      method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,Cache-Control'"
+                      method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,Cache-Control,Pragma'"
                       method.response.header.Access-Control-Allow-Methods : "'OPTIONS,POST'"
                       method.response.header.Access-Control-Allow-Origin :
                         !Join
@@ -214,7 +214,7 @@ Resources:
                   'default':
                     statusCode: '200'
                     responseParameters:
-                      method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,Cache-Control'"
+                      method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,Cache-Control,Pragma'"
                       method.response.header.Access-Control-Allow-Methods : "'OPTIONS,GET'"
                       method.response.header.Access-Control-Allow-Origin :
                         !Join
@@ -266,5 +266,5 @@ Outputs:
     Description: 'Base URL of HTTP API endpoint to write on the MiroBannerTermsAcceptersTable database'
     Value: !Sub 'https://${MiroBannerTermsAPI}.execute-api.${AWS::Region}.amazonaws.com'
   DynamoDBTableName:
-    Description: 'Name of the DynamoDB table that captures users who have accepted the T&C banner in Miro'
+    Description: 'Name of the DynamoDB table that captures users who have accepted the terms banner in Miro'
     Value: !Ref MiroBannerTermsAcceptersTable
