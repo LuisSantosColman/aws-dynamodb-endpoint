@@ -44,7 +44,6 @@ Resources:
     Type: 'AWS::Serverless::SimpleTable'
     Properties:
       TableName: !Join ['-', ['miro-terms-banner-accepters', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
-      Description: 'Table for the Miro Terms Banner app. It captures the user ID of users who have accepted the terms banner in Miro'
       PrimaryKey:
         Name: id
         Type: String
