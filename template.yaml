@@ -43,6 +43,8 @@ Resources:
   MiroBannerTermsAcceptersTable:
     Type: 'AWS::Serverless::SimpleTable'
     Properties:
+      TableName: !Join ['-', ['miro-terms-banner-accepters', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+      Description: 'Table for the Miro Terms Banner app. It captures the user ID of users who have accepted the terms banner in Miro'
       PrimaryKey:
         Name: id
         Type: String
@@ -97,7 +99,8 @@ Resources:
   MiroBannerTermsReadFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
-      FunctionName: MiroBannerTermsReadFunction
+      FunctionName: !Join ['-', ['MiroBannerTermsReadFunction', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+      Description: !Sub 'Lambda function for the "Miro Terms Modal app". It reads data from the DynamoDB table "${MiroBannerTermsAcceptersTable}"'
       Handler: app.handler
       Runtime: nodejs14.x
       CodeUri: readApp/
@@ -111,7 +114,8 @@ Resources:
   MiroBannerTermsWriteFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
-      FunctionName: MiroBannerTermsWriteFunction
+      FunctionName: !Join ['-', ['MiroBannerTermsWriteFunction', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+      Description: !Sub 'Lambda function for the "Miro Terms Modal app". It writes data on the DynamoDB table "${MiroBannerTermsAcceptersTable}"'
       Handler: app.handler
       Runtime: nodejs14.x
       CodeUri: writeApp/
@@ -125,6 +129,8 @@ Resources:
   MiroBannerTermsAPI:
     Type: 'AWS::Serverless::Api'
     Properties:
+      Name: !Join ['', ['api-', !Join ['-', [!Ref AWS::StackName, !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]]]
+      Description: !Sub 'API endpoint for the "Miro Terms Modal app". It handles requests to read/write on the DynamoDB table "${MiroBannerTermsAcceptersTable}"'
       StageName: Prod
       DefinitionBody:
         swagger: '2.0'
