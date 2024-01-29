@@ -90,7 +90,7 @@
                 }
                 else {
                     console.log('No modals currently open - Checking acceptance...');
-                    const apiUrl = READ_DATABASE_ENDPOINT_BASE_URL + '/Prod/q?u=' + window.userInfo.id;
+                    const apiUrl = API_ENDPOINT_BASE_URL + '/Prod/q?u=' + window.userInfo.id;
                     const query = await callApi(apiUrl,'GET',null);
                     if (query.status === 200) {
                       console.log('Terms Modal has been accepted - Ending actions');
