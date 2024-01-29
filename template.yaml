@@ -43,7 +43,7 @@ Resources:
   MiroBannerTermsAcceptersTable:
     Type: 'AWS::Serverless::SimpleTable'
     Properties:
-      TableName: !Join ['-', ['miro-terms-banner-accepters', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+      TableName: !Join ['-', ['miro-terms-banner-accepters-database', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       PrimaryKey:
         Name: id
         Type: String
