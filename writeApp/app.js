@@ -1,4 +1,4 @@
-/* Example of expected payload for the POST request: { "id": "Miro-User-ID" } */
+/* Example of expected payload for the POST request: { "id": "Miro_User_ID" } */
 
 const AWS = require('aws-sdk');
 
@@ -13,8 +13,8 @@ exports.handler = async (event) => {
     };
     
     const responseHeaders = {
-        "Access-Control-Allow-Headers": "Content-Type,Accept,Cache-Control",
-        "Access-Control-Allow-Origin": "*", // Allow from anywhere
+        "Access-Control-Allow-Headers": "Content-Type,Accept,Cache-Control,Pragma",
+        "Access-Control-Allow-Origin": "*", // Replace wildcard (*) with your S3 bucket base URL (visible in your AWS SAML CLI Outputs) - See step 2.13 of the PDF guide
         "Access-Control-Allow-Methods": "OPTIONS,POST", // Allow only POST request
         "Content-Type": "application/json"
     };
