@@ -116,7 +116,7 @@
                 showProcessingButton();
                 const userInfo = await miro.board.getUserInfo();
                 const userId = userInfo.id;
-                const apiUrl = WRITE_DATABASE_ENDPOINT_BASE_URL + '/Prod/w';
+                const apiUrl = API_ENDPOINT_BASE_URL + '/Prod/w';
                 const payload = `{ "id": "${userId}" }`;
                 const capture = await callApi(apiUrl,'POST',payload);
                 if (capture.status === 200) {
